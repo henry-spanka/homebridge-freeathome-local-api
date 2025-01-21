@@ -38,7 +38,7 @@ export class SwitchSensorAccessory extends FreeAtHomeAccessory {
 
   public override updateDatapoint(datapoint: string): void {
     // ignore unknown data points
-    if (datapoint !== "idp0000") return;
+    if (datapoint !== "odp0000") return;
 
     this.platform.log.info(
       // eslint-disable-next-line max-len
