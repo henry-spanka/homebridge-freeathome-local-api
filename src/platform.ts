@@ -132,7 +132,7 @@ export class FreeAtHomeHomebridgePlatform implements DynamicPlatformPlugin {
         const timestamp = Date.now();
 
         if (Math.floor((timestamp - this.lastPongReceived) / 1000) >= 60)  { // 1 Minute
-          this.sysap.disconnect();
+          this.sysap.disconnectWebSocket();
         }
       }, 30000)
     });
