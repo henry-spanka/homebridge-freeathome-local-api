@@ -126,7 +126,7 @@ export class FreeAtHomeHomebridgePlatform implements DynamicPlatformPlugin {
     // React to web socket events
     this.sysap.on("websocket-open", () => {
       this.wsConnectionAttempt = 0;
-      setInterval(() => {
+      this.pingInterval = setInterval(() => {
         this.sysap.pingWebSocket();
 
         const timestamp = Date.now();
