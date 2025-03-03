@@ -76,5 +76,8 @@
     "rimraf": "^6.0.1",
     "tsx": "^4.19.2",
     "typescript": "~5.7.2"
+  },
+  "overrides": {
+    "freeathome-local-api-client": "henry-spanka/freeathome-local-api-client#custom-fixes"
   }
 }

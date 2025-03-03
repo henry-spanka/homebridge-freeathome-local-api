@@ -67,6 +67,8 @@ export class FreeAtHomeHomebridgePlatform implements DynamicPlatformPlugin {
   private readonly webSocketSubscription: Subscription;
   private wsConnectionAttempt = 0;
   private readonly maxWsRetryCount: number;
+  private lastPongReceived: number = Date.now();
+  private pingInterval: ReturnType<typeof setInterval> | null = null;
 
   private get experimentalMode(): boolean {
     return this.config.experimental as boolean;
@@ -124,13 +126,26 @@ export class FreeAtHomeHomebridgePlatform implements DynamicPlatformPlugin {
     // React to web socket events
     this.sysap.on("websocket-open", () => {
       this.wsConnectionAttempt = 0;
+      setInterval(() => {
+        this.sysap.pingWebSocket();
+
+        const timestamp = Date.now();
+
+        if (Math.floor((timestamp - this.lastPongReceived) / 1000) >= 60)  { // 1 Minute
+          this.sysap.disconnect();
+        }
+      }, 30000)
     });
     this.sysap.on("websocket-close", (code: number, reason: Buffer) => {
-      if (code === 1000) return;
-
       this.log.warn(
         `Websocket to System Access Point was closed with code ${code.toString()}: ${reason.toString()}`
       );
+
+      if (this.pingInterval !== null) {
+        clearInterval(this.pingInterval);
+        this.pingInterval = null;
+      }
+
       if (this.wsConnectionAttempt >= this.maxWsRetryCount) {
         this.log.error(
           "Maximum retry count exceeded. Will not try to reconnect to websocket again."
@@ -149,6 +164,9 @@ export class FreeAtHomeHomebridgePlatform implements DynamicPlatformPlugin {
           ),
         delay
       );
+    });
+    this.sysap.on("websocket-pong", (data: Buffer) => {
+      this.lastPongReceived = Date.now();
     });
 
     // Subscribe to web socket messages
