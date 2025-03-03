@@ -128,10 +128,12 @@ export class FreeAtHomeHomebridgePlatform implements DynamicPlatformPlugin {
       this.wsConnectionAttempt = 0;
       this.pingInterval = setInterval(() => {
         this.sysap.pingWebSocket();
+        this.log.debug("Sending Web Socket ping.");
 
         const timestamp = Date.now();
 
         if (Math.floor((timestamp - this.lastPongReceived) / 1000) >= 60)  { // 1 Minute
+          this.log.warn("Disconnecting from Web Socket due to ping timeout.");
           this.sysap.disconnectWebSocket();
         }
       }, 30000)
